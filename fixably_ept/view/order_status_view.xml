@@ -1,0 +1,51 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="fixably_order_status_tree_view_ept" model="ir.ui.view">
+        <field name="name">Fixably Order Status</field>
+        <field name="model">fixably.order.status.ept</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="type"/>
+                <field name="fixably_instance_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="fixably_order_status_search_view_ept"
+            model="ir.ui.view">
+        <field name="name">Fixably Order Status Search View</field>
+        <field name="model">fixably.order.status.ept</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search string="Fixably Order Status">
+                <field name="name"/>
+                <group expand="0" string="Group By...">
+                    <filter name="instance" string="Instance"
+                            icon="terp-personal"
+                            context="{'group_by':'fixably_instance_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fixably_order_status_ept" model="ir.actions.act_window">
+        <field name="name">Fixably Order Status</field>
+        <field name="res_model">fixably.order.status.ept</field>
+        <field name="view_id" ref="fixably_order_status_tree_view_ept"/>
+        <field name="help" type="html">
+            <div class="oe_empty_fixably_order_status">
+                <p class="o_view_nocontent_smiling_face">
+                    <b>There is no any Fixably order_status configured yet.</b>
+                </p>
+                <p>
+
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <menuitem id="fixably_order_status_menu"
+              name="Order Status" parent="fixably_ept.menu_configuration_ept"
+              action="action_fixably_order_status_ept"/>
+</odoo>

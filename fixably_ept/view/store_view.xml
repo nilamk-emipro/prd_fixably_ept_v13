@@ -1,0 +1,52 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="fixably_store_tree_view_ept" model="ir.ui.view">
+        <field name="name">Fixably Store</field>
+        <field name="model">fixably.store.ept</field>
+        <field name="arch" type="xml">
+            <tree editable="bottom">
+                <field name="name"/>
+                <field name="fixably_instance_id"/>
+                <field name="fixably_team_id"/>
+                <field name="fixably_pos_store_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="fixably_store_search_view_ept"
+            model="ir.ui.view">
+        <field name="name">Fixably Store Search View</field>
+        <field name="model">fixably.store.ept</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search string="Fixably Store">
+                <field name="name"/>
+                <group expand="0" string="Group By...">
+                    <filter name="instance" string="Instance"
+                            icon="terp-personal"
+                            context="{'group_by':'fixably_instance_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fixably_store_ept" model="ir.actions.act_window">
+        <field name="name">Fixably Store</field>
+        <field name="res_model">fixably.store.ept</field>
+        <field name="view_id" ref="fixably_store_tree_view_ept"/>
+        <field name="help" type="html">
+            <div class="oe_empty_fixably_store">
+                <p class="o_view_nocontent_smiling_face">
+                    <b>There is no any Fixably Store configured yet.</b>
+                </p>
+                <p>
+
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <menuitem id="fixably_store_menu" sequence="3"
+              name="Store" parent="fixably_ept.menu_configuration_ept"
+              action="action_fixably_store_ept"/>
+</odoo>

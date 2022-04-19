@@ -1,0 +1,14 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_fixably_instance_ept_manager,fixably.instance.ept.manager,model_fixably_instance_ept,,1,1,1,1
+access_fixably_store_ept_manager,fixably.store.ept.manager,model_fixably_store_ept,,1,1,1,1
+access_fixably_product_ept_manager,fixably.product.ept.manager,model_fixably_product_ept,,1,1,1,1
+access_fixably_product_queue_ept_manager,fixably.product.queue.ept.manager,model_fixably_product_queue_ept,,1,1,1,1
+access_fixably_product_queue_line_ept_manager,fixably.product.queue.line.ept.manager,model_fixably_product_queue_line_ept,,1,1,1,1
+access_fixably_common_log_book_ept_manager,fixably.common.log.book.ept.manager,model_common_log_book_ept,,1,1,1,1
+access_fixably_common_log_line_ept_manager,fixably.common.log.line.ept.manager,model_common_log_lines_ept,,1,1,1,1
+access_process_import_export,fixably.process.import.export.manager,model_fixably_process_import_export,,1,1,1,1
+access_fixably_res_config_instance,res.config.fixably.instance.manager,model_res_config_fixably_instance,,1,1,1,1
+access_fixably_queue_process_ept_manager,fixably.queue.process.ept.manager,model_fixably_queue_process_ept,,1,1,1,1
+access_fixably_order_queue_ept_manager,fixably.order.queue.ept.manager,model_fixably_order_queue_ept,,1,1,1,1
+access_fixably_order_queue_line_ept_manager,fixably.order.queue.line.ept.manager,model_fixably_order_queue_line_ept,,1,1,1,1
+access_fixably_order_status_ept_manager,fixably.order.status.ept.manager,model_fixably_order_status_ept,,1,1,1,1

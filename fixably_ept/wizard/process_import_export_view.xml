@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_fixably_process_import_export_ept" model="ir.ui.view">
+        <field name="name">Process Import/Export</field>
+        <field name="model">fixably.process.import.export</field>
+        <field name="arch" type="xml">
+            <form string="Import/Export">
+                <sheet>
+                    <group name='fixably_instance'>
+                        <group>
+                            <field name='fixably_instance_id' required="1"/>
+                        </group>
+                        <group>
+                            <field name='fixably_operation' string="Operations" required="1"/>
+                        </group>
+                    </group>
+                    <group>
+                        <div name="msg_opr_main">
+                            <div attrs="{'invisible':[('fixably_operation','!=','sync_product')]}">
+                                <p colspan="2" class="alert alert-warning" role="alert">
+                                    <b>
+                                        <u>
+                                            <h3 style="font-weight:bold;color:#7d5a29">Note :
+                                            </h3>
+                                        </u>
+                                        <ol>
+                                            <li>
+                                                Sync product starts fetching product data from
+                                                Fixably and will
+                                                just add that data in Product Queue for processing.
+                                                (Fixably &gt; Products > Fixably Products)
+                                            </li>
+                                            <li>
+                                                A Scheduled/Cron Job, running in background will
+                                                start processing Queues
+                                                one by one.
+                                            </li>
+                                            <li>
+                                                You can find the details of last execution of this
+                                                operation in Menu
+                                                Fixably > Configuration > Settings > Select an
+                                                instance.
+                                            </li>
+                                        </ol>
+                                    </b>
+                                </p>
+                            </div>
+                            <div attrs="{'invisible':[('fixably_operation','!=','sync_orders')]}">
+                                <p colspan="2" class="alert alert-warning" role="alert">
+                                    <b>
+                                        <u>
+                                            <h3 style="font-weight:bold;color:#7d5a29">Note :
+                                            </h3>
+                                        </u>
+                                        <ol>
+                                            <li>
+                                                It will start fetching Order data from Fixably
+                                                and will just add
+                                                that data in Order Queue for processing. (Fixably
+                                                &gt; Logs > Orders Queue)
+                                            </li>
+                                            <li>
+                                                A Scheduled/Cron Job, running in background will
+                                                start processing Queues
+                                                one by one.
+                                            </li>
+                                        </ol>
+                                    </b>
+                                </p>
+                            </div>
+                        </div>
+                    </group>
+                    <notebook>
+                        <page string='Sync Option'>
+                            <group name='sync_order_date_wise'
+                                   attrs="{'invisible':[('fixably_operation','!=','sync_orders')]}">
+                                <group>
+                                    <field name='orders_from_date' style="width:60%"/>
+                                    <field name='orders_to_date' style="width:60%"/>
+                                </group>
+                            </group>
+                            <group name='sync_order_date_wise'
+                                   attrs="{'invisible':[('fixably_operation','!=','sync_product')]}">
+                                <group name="sync_product"
+                                       attrs="{'invisible':[('fixably_operation','!=','sync_product')]}">
+                                    <field name="skip_existing_product"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                    <footer>
+                        <button string="Execute" class="oe_highlight"
+                                type="object" name="fixably_execute"/>
+                        <button string="Cancel" class="oe_highlight"
+                                special="cancel"/>
+                    </footer>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_wizard_fixably_import_orders_in_fixably_ept"
+            model="ir.actions.act_window">
+        <field name="name">Fixably Operations</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">fixably.process.import.export</field>
+        <field name="view_mode">form</field>
+        <field name="view_id"
+               ref="view_fixably_process_import_export_ept"/>
+        <field name="target">new</field>
+    </record>
+
+    <menuitem id="menu_fixably_processes_ept"
+              parent="fixably_instance_menu_item" name="Operations"
+              action="action_wizard_fixably_import_orders_in_fixably_ept" sequence="3"/>
+</odoo>

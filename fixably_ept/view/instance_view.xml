@@ -1,0 +1,145 @@
+<?xml version="1.0" ?>
+<odoo>
+    <record id="fixably_instance_tree_view_ept" model="ir.ui.view">
+        <field name="name">Fixably Instance</field>
+        <field name="model">fixably.instance.ept</field>
+        <field name="arch" type="xml">
+            <tree create="0">
+                <field name="name"/>
+                <field name="fixably_url"/>
+                <field name="fixably_company_id"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="fixably_instance_form_view_ept" model="ir.ui.view">
+        <field name="name">Fixably Instance</field>
+        <field name="model">fixably.instance.ept</field>
+        <field name="arch" type="xml">
+            <form create="0" string="Fixably Instance">
+                <sheet>
+                    <field name="active" invisible="1"/>
+                    <div class="oe_button_box" name="button_box">
+                        <button type="object" style="width:16% !important"
+                                name="open_reset_credentials_wizard" class="oe_stat_button"
+                                groups="base.group_system" icon="fa-undo"
+                                attrs="{'invisible': [('active','=',False)]}">
+                            <span class="o_stat_text">Reset Credentials</span>
+                        </button>
+                        <!--                        <button type="object" style="width:16% !important"-->
+                        <!--                                name="cron_configuration_action" class="oe_stat_button"-->
+                        <!--                                groups="base.group_system" icon="fa-wrench"-->
+                        <!--                                attrs="{'invisible': [('active','=',False)]}">-->
+                        <!--                            <span class="o_stat_text">Configure Schedulers</span>-->
+                        <!--                        </button>-->
+                        <!--                        <button type="object" name="action_redirect_to_ir_cron"-->
+                        <!--                                class="oe_stat_button" icon="fa-play-circle"-->
+                        <!--                                groups="base.group_system"-->
+                        <!--                                attrs="{'invisible': [('active','=',False)]}">-->
+                        <!--                            <span class="o_stat_text">Active Schedulers</span>-->
+                        <!--                        </button>-->
+                        <!--                        <button class="oe_stat_button"-->
+                        <!--                                name="action_fixably_active_archive_instance" icon="fa-lock"-->
+                        <!--                                type="object" attrs="{'invisible': [('active','=',False)]}">-->
+                        <!--                            <span class="o_stat_text" style="color:#2dab2d">Active</span>-->
+                        <!--                        </button>-->
+                        <!--                        <button class="oe_stat_button"-->
+                        <!--                                name="action_fixably_active_archive_instance" icon="fa-unlock"-->
+                        <!--                                type="object" attrs="{'invisible': [('active','=',True)]}">-->
+                        <!--                            <span class="o_stat_text" style="color:#da3434">Archive</span>-->
+                        <!--                        </button>-->
+                    </div>
+                    <div class="oe_left" style="width: 500px;">
+                        <div class="oe_title" style="width: 390px;">
+                            <label class="oe_edit_only" for="name" string="Name"/>
+                            <h1>
+                                <field name="name" class="oe_inline"/>
+                            </h1>
+                        </div>
+                    </div>
+                    <group string="Configuration">
+                        <group>
+                            <field name="fixably_company_id" widget="selection"
+                                   readonly="1" groups="base.group_multi_company"/>
+                            <field name="fixably_warehouse_id" required="1"
+                                   readonly="1"/>
+                        </group>
+                    </group>
+                    <group string="Fixably Site Info">
+                        <group>
+                            <field name="fixably_url"
+                                   attrs="{'readonly': [('active','=',True)]}"/>
+                        </group>
+                        <group>
+                            <field name="fixably_api_key"
+                                   attrs="{'readonly': [('active','=',True)]}"/>
+                        </group>
+                    </group>
+
+                    <notebook>
+                        <page string="Last Operation Details"
+                              name="last_operation_detail">
+                            <group>
+                                <group>
+                                    <field name="last_order_import_date" readonly="1"/>
+                                    <field name="fixably_pricelist_id" readonly="1"/>
+                                    <field name="fixably_order_status_ids" widget="many2many_tags"/>
+                                </group>
+                            </group>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="fixably_instance_search_view_ept"
+            model="ir.ui.view">
+        <field name="name">Fixably Instance Search View</field>
+        <field name="model">fixably.instance.ept</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search string="Fixably Instance">
+                <field name="name"/>
+                <filter name="archive" string="Archived" domain="[('active','=',False)]"/>
+                <group expand="0" string="Group By...">
+                    <filter name="warehouse" string="Warehouse"
+                            icon="terp-personal"
+                            context="{'group_by':'fixably_warehouse_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="action_fixably_instance_ept"
+            model="ir.actions.act_window">
+        <field name="name">Fixably Instance</field>
+        <field name="res_model">fixably.instance.ept</field>
+        <field name="view_id" ref="fixably_instance_tree_view_ept"/>
+        <field name="help" type="html">
+            <div class="oe_empty_fixably_instance">
+                <p class="o_view_nocontent_smiling_face">
+                    <b>There is no any fixably Instance configured yet.</b>
+                </p>
+                <p>
+                    To add your first fixably Instance, go to Configuration menu and
+                    then open Settings, you can create new Instance from there. At
+                    there you can define one or more fixably Instances and configure
+                    extended options per Instance test.
+                </p>
+            </div>
+        </field>
+    </record>
+
+    <menuitem id="fixably_instance_menu_item" name="Fixably"/>
+
+    <menuitem name="Logs" id="fixably_log_menu"
+              parent="fixably_instance_menu_item"/>
+
+    <menuitem id="menu_configuration_ept" name="Configuration" sequence="4"
+              parent="fixably_instance_menu_item"/>
+
+    <menuitem id="fixably_instance_menu_item_instance" sequence="2"
+              name="Instances" parent="fixably_ept.menu_configuration_ept"
+              action="action_fixably_instance_ept"/>
+</odoo>

@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--Action of common log book-->
+    <record id="action_common_log_book_ept_fixably" model="ir.actions.act_window">
+        <field name="name">Common Log Book</field>
+        <field name="res_model">common.log.book.ept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('fixably_instance_id','=',active_id)]</field>
+    </record>
+
+    <!--Search view of common log book-->
+    <record id="common_log_book_fixably_search_view_ept" model="ir.ui.view">
+        <field name="name">Common Log Search View</field>
+        <field name="model">common.log.book.ept</field>
+        <field name="type">search</field>
+        <field name="arch" type="xml">
+            <search string="Common Logs">
+                <field name="name"/>
+                <field name="type"/>
+                <group expand="0" string="Group By...">
+                    <filter name="instance" string="Instance" icon="terp-personal"
+                            context="{'group_by': 'fixably_instance_id'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <!--Inherit tree view of common log book-->
+    <record id="inherit_view_of_common_log_book_ept_tree" model="ir.ui.view">
+        <field name="name">fixably Instance in Log book Tree</field>
+        <field name="model">common.log.book.ept</field>
+        <field name="inherit_id"
+               ref="common_connector_library.action_common_log_book_ept_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//tree" position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="edit">0</attribute>
+            </xpath>
+            <field name="create_date" position="after">
+                <field name="fixably_instance_id"
+                       attrs="{'column_invisible':[('module','!=','fixably_ept')]}"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="view_of_common_log_line_ept_tree" model="ir.ui.view">
+        <field name="name">fixably Instance in Log line Tree</field>
+        <field name="model">common.log.lines.ept</field>
+        <field name="arch" type="xml">
+            <tree create="0" edit="0">
+                <field name="log_line_id"/>
+                <field name="order_ref"/>
+                <field name="default_code"/>
+                <field name="message"/>
+                <field name="model_id"/>
+                <field name="write_date"/>
+            </tree>
+        </field>
+    </record>
+
+    <!--Inherit form view of common log book-->
+    <record id="inherit_view_of_common_log_book_ept_from" model="ir.ui.view">
+        <field name="name">fixably Instance in Log book Form</field>
+        <field name="model">common.log.book.ept</field>
+        <field name="inherit_id"
+               ref="common_connector_library.action_common_log_book_ept_form"/>
+        <field name="arch" type="xml">
+            <field name="res_id" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </field>
+            <xpath expr="//form" position="attributes">
+                <attribute name="create">0</attribute>
+                <attribute name="edit">0</attribute>
+            </xpath>
+            <field name="active" position="after">
+                <field name="fixably_instance_id" readonly="1"/>
+            </field>
+        </field>
+    </record>
+
+    <record id="action_fixably_common_log_book_ept" model="ir.actions.act_window">
+        <field name="name">Common Log Book</field>
+        <field name="res_model">common.log.book.ept</field>
+        <field name="view_mode">tree,form</field>
+        <field name="domain">[('module','=','fixably_ept')]</field>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No mismatch details are found.
+            </p>
+        </field>
+    </record>
+
+    <record id="action_fixably_common_log_line_ept" model="ir.actions.act_window">
+        <field name="name">Log Lines</field>
+        <field name="res_model">common.log.lines.ept</field>
+        <field name="view_mode">tree</field>
+        <field name="domain">[('log_line_id.module', '=', 'fixably_ept')]</field>
+        <field name="view_id" ref="view_of_common_log_line_ept_tree"/>
+        <field name="help" type="html">
+            <p class="o_view_nocontent_smiling_face">
+                No mismatch log lines are there!
+            </p>
+            <p>If any import/export/update process has got issue, log lines will be shown here.</p>
+        </field>
+    </record>
+
+    <menuitem id="fixably_mismatch_ept" name="Log Book"
+              parent="fixably_ept.fixably_log_menu"
+              action="fixably_ept.action_fixably_common_log_book_ept"
+              sequence="3"/>
+
+    <menuitem id="fixably_log_line_ept" name="Log Lines"
+              parent="fixably_ept.fixably_log_menu"
+              action="fixably_ept.action_fixably_common_log_line_ept"
+              sequence="4"/>
+</odoo>

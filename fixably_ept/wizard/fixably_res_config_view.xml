@@ -1,0 +1,333 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+    <record id="view_reset_credentials_form" model="ir.ui.view">
+        <field name="name">Reset Credentials</field>
+        <field name="model">res.config.fixably.instance</field>
+        <field name="arch" type="xml">
+            <form class="oe_form_configuration">
+                <h3>Reset credentials for Instance :
+                    <field name="name" class="oe_inline" readonly="1"/>
+                </h3>
+                <group>
+                    <group>
+                        <field name='fixably_url' readonly="1"/>
+                        <field name='fixably_api_key' required="1"/>
+                    </group>
+                </group>
+                <group>
+                    <button name="reset_credentials" type="object" string="Test Connection"
+                            icon="fa-television" context="{'test_connection':True}"/>
+                </group>
+                <footer>
+                    <button string="Save" type="object"
+                            name="reset_credentials" class="oe_highlight"/>
+                    <button class="oe_highlight" special="cancel"
+                            string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_fixably_config_settings" model="ir.ui.view">
+        <field name="name">Fixably Settings</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="100"/>
+        <field name="inherit_id"
+               ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//div[hasclass('settings')]" position="inside">
+                <div class="app_settings_block" data-string="fixably" data-key="fixably_ept">
+                    <h2 style="font-size:25px;background-color:#e9ecef;">Fixably Instances</h2>
+
+                    <div class="row mt16 o_settings_container">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_instance_id" string="Select Instance"/>
+                                <field name="fixably_instance_id"
+                                       attrs="{'required':[('fixably_instance_id','!=',False)]}"/>
+                                <button name="%(res_config_action_fixably_instance)d" icon="fa-arrow-right"
+                                        type="action" string="Create More Instance" class="oe_link"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size:25px;background-color:#e9ecef;"
+                        attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        General Configuration
+                    </h2>
+                    <div class="row mt16 o_settings_container"
+                         attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        <field name="fixably_company_id" invisible="1"/>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_warehouse_id" string="Warehouse"/>
+                                <div class="text-muted">
+                                    Selected Warehouse will be set in your orders.
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="fixably_warehouse_id"
+                                               class="o_light_label" widget="selection"
+                                               attrs="{'required':[('fixably_instance_id','!=',False)]}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size:25px;background-color:#e9ecef;"
+                        attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        Product Configuration
+                    </h2>
+                    <div class="row mt16 o_settings_container"
+                         attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="fixably_auto_create_product_if_not_found" widget="boolean_toggle"
+                                       style="padding-left:25px;"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_auto_create_product_if_not_found"/>
+                                <div class="text-muted">
+                                    - This option creates a new product in your catalogue if system
+                                    couldn't find
+                                    the product based on SKU / Internal Reference / Default Product
+                                    Code.
+                                    <br/>
+                                    - If you are selling on multiple sales channels and having
+                                    different SKU /
+                                    Internal Reference / Default Product Code on each sales channel,
+                                    it may lead to
+                                    creation of duplicate products in your product catalogue in your
+                                    database.
+                                    <br/>
+                                    - So we request you to enable this option, as per your product
+                                    catalogue
+                                    configuration.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h2 style="font-size:25px;background-color:#e9ecef;"
+                        attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        Order Configuration
+                    </h2>
+                    <div class="row mt16 o_settings_container"
+                         attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_order_status_ids" string="Import Order Status"/>
+                                <div class="text-muted">
+                                    Select order status which you want to import orders from Fixably to Odoo.
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="fixably_order_status_ids"
+                                               widget="many2many_tags"
+                                               options="{'no_create':True,'no_create_edit': True}"
+                                               class="oe_inline"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_order_prefix"/>
+                                <div class="text-muted">
+                                    Enter Order Prefix
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="fixably_order_prefix" class="o_light_label"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_left_pane">
+                                <field name="fixably_is_use_default_sequence" widget="boolean_toggle"
+                                       style="padding-left:25px;"/>
+                            </div>
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_is_use_default_sequence"
+                                       string="Use Odoo Default Sequence?"/>
+                                <div class="text-muted">
+                                    If checked,Then use default sequence of odoo for order
+                                    create.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="fixably_pricelist_id" string="Pricelist"/>
+                                <div class="text-muted">
+                                    During order sync, prices will be
+                                    Imported/Exported using this
+                                    Pricelist.
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="fixably_pricelist_id"
+                                               class="o_light_label"
+                                               attrs="{'required':[('fixably_instance_id','!=',False)]}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <h2 style="font-size:25px;background-color:#e9ecef;"
+                        attrs="{'invisible': [('fixably_instance_id', '=', False)]}">Tax
+                        Configuration
+                    </h2>
+                    <div class="row mt16 o_settings_container"
+                         attrs="{'invisible': [('fixably_instance_id', '=', False)]}">
+                        <div class="col-xs-12 col-md-6 o_setting_box">
+                            <div class="o_setting_right_pane">
+                                <label for="apply_tax"
+                                       string="Fixably Apply Tax"/>
+                                <div class="text-muted">
+                                    1) Odoo Default Tax Behaviour - The Taxes will be set based on
+                                    Odoo's default
+                                    functional behaviour i.e. based on Odoo's Tax and Fiscal
+                                    Position
+                                    configurations.
+                                    <br/>
+                                    2) Create New Tax If Not Found - System will search the tax data
+                                    received from
+                                    fixably in Odoo, will create a new one if it fails in finding
+                                    it.
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="apply_tax"
+                                               class="o_light_label"
+                                               attrs="{'required':[('fixably_instance_id','!=',False)]}"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-12 col-md-6 o_setting_box"
+                             attrs="{'invisible': [('apply_tax', '=', 'odoo_tax')]}">
+                            <div class="o_setting_right_pane">
+                                <label for="credit_tax_account_id"
+                                       string="Credit Note Tax Account"/>
+                                <div class="text-muted">
+                                    Set the credit tax account base on this account we will set this
+                                    account in the
+                                    newly created tax when import orders from fixably to Odoo.
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="credit_tax_account_id"
+                                               class="o_light_label"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-xs-12 col-md-6 o_setting_box"
+                             attrs="{'invisible': [('apply_tax', '=', 'odoo_tax')]}">
+                            <div class="o_setting_right_pane">
+                                <label for="debit_tax_account_id"
+                                       string="Invoice Tax Account"/>
+                                <div class="text-muted">
+                                    Set the debit tax account base on this account we will set
+                                    this account in the newly created tax when import orders
+                                    from fixably to Odoo.
+                                </div>
+                                <div class="content-group">
+                                    <div class="mt16">
+                                        <field name="debit_tax_account_id"
+                                               class="o_light_label"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </xpath>
+        </field>
+    </record>
+
+    <record id="action_fixably_config" model="ir.actions.act_window">
+        <field name="name">fixably</field>
+        <field name="type">ir.actions.act_window</field>
+        <field name="res_model">res.config.settings</field>
+        <field name="view_mode">form</field>
+        <field name="view_id" ref="view_fixably_config_settings"/>
+        <field name="target">inline</field>
+        <field name="context">{'module' : 'fixably_ept'}</field>
+    </record>
+
+    <record id="view_res_config_fixably_instance"
+            model="ir.ui.view">
+        <field name="name">Configure Instance</field>
+        <field name="model">res.config.fixably.instance</field>
+        <field name="arch" type="xml">
+            <form string="Configure Instance" class="o_fixably_ept oe_form_configuration">
+                <group>
+                    <group>
+                        <field name="name" required="1"
+                               readonly="context.get('is_already_instance_created', False)"/>
+                        <field name='fixably_url'
+                               placeholder="https://my-fixably-store.myfixably.com" required="1"
+                               readonly="context.get('is_already_instance_created', False)"/>
+                        <field name="fixably_company_id" required="1" string="Company"
+                               options="{'no_create':True,'no_create':True,'no_create_edit':True}"
+                               readonly="context.get('is_already_instance_created', False)"/>
+                        <field name='fixably_api_key' required="1"
+                               readonly="context.get('is_already_instance_created', False)"/>
+                    </group>
+                </group>
+                <group invisible="context.get('is_calling_from_onboarding_panel', False)">
+                    <p colspan="2" class="alert alert-warning" role="alert">
+                        <div style="color:#ff0000; font-size:15px;">
+                            <b>Important Note:</b>
+                        </div>
+                        <div class="d-inline-block w-100">
+                            <div class="row">
+                                <div class="col-11 p-0">
+                                    <ul>
+                                        <li>
+                                            After creating the instance, please make sure you
+                                            complete all
+                                            the other
+                                            necessary configurations such as Tax,
+                                            Warehouse, Pricelist etc. from
+                                            the Fixably setting screen.
+                                        </li>
+                                        <li>
+                                            Fixably =&gt; Configurations =&gt; Settings
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </p>
+                </group>
+                <footer>
+                    <button string="Create" type="object"
+                            name="fixably_test_connection" class="oe_highlight"
+                            invisible="context.get('is_already_instance_created', False)"/>
+                    <button class="oe_highlight" special="cancel"
+                            string="Cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+    <record id="res_config_action_fixably_instance"
+            model="ir.actions.act_window">
+        <field name="name">Fixably Instance</field>
+        <field name="res_model">res.config.fixably.instance</field>
+        <field name="view_mode">form</field>
+        <field name="target">new</field>
+        <field name="view_id" ref="view_res_config_fixably_instance"/>
+    </record>
+
+    <menuitem id="fixably_menu_item_res_config" sequence="1"
+              name="Settings" parent="fixably_ept.menu_configuration_ept"
+              action="action_fixably_config"/>
+</odoo>

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_res_config_fixably_instance"
+                model="ir.ui.view">
+            <field name="name">Configure Instance</field>
+            <field name="model">res.config.fixably.instance</field>
+            <field name="arch" type="xml">
+                <form string="Configure Instance" class="o_fixably_ept oe_form_configuration">
+                    <group>
+                        <group>
+                            <field name="name"/>
+                            <field name='fixably_url' placeholder="https://my-fixably.myfixably.com"/>
+                            <field name="fixably_company_id" string="Company"/>
+                        </group>
+                        <group>
+                            <field name='fixably_api_key'/>
+                        </group>
+                    </group>
+                    <group>
+                        <p colspan="2" class="alert alert-warning" role="alert">
+                            <div style="color:#ff0000; font-size:15px;">
+                                <b>Important Note:</b>
+                            </div>
+                            <div class="d-inline-block w-100">
+                                <div class="row">
+                                    <div class="col-11 p-0">
+                                        <ul>
+                                            <li>
+                                                After creating the instance, please make sure you
+                                                complete all
+                                                the other
+                                                necessary configurations such as Tax,
+                                                Warehouse, Pricelist etc. from
+                                                the fixably setting screen.
+                                            </li>
+                                            <li>
+                                                Fixably =&gt; Configurations =&gt; Settings
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </p>
+                    </group>
+                    <footer>
+                        <button string="Create" type="object"
+                                name="fixably_test_connection" class="oe_highlight"/>
+                        <button class="oe_highlight" special="cancel"
+                                string="Cancel"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="res_config_action_fixably_instance"
+                model="ir.actions.act_window">
+            <field name="name">Fixably Instance</field>
+            <field name="res_model">res.config.fixably.instance</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="view_res_config_fixably_instance"/>
+        </record>
+    </data>
+</odoo>
