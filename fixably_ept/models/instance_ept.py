@@ -75,7 +75,7 @@ class FixablyInstanceEpt(models.Model):
 
     def prepare_fixably_api_url(self, url, ref, withURL):
         """ This method is used to prepare a store URL.
-            return : api_url
+        @return: api_url
         """
         if withURL:
             api_url = ref
@@ -85,7 +85,8 @@ class FixablyInstanceEpt(models.Model):
 
     def connect_with_fixably(self, ref=False, withURL=False):
         """
-               This method used to connect with Odoo to Fixably.
+        This method used to connect with Odoo to Fixably.
+        @return: response
         """
         api_url = self.prepare_fixably_api_url(self.fixably_url, ref, withURL)
         headers = {'Authorization': self.fixably_api_key,
@@ -96,6 +97,7 @@ class FixablyInstanceEpt(models.Model):
     def get_fixably_cron_execution_time(self, cron_name):
         """
         This method is used to get the interval time of the cron.
+        @return: interval_in_seconds
         """
         process_queue_cron = self.env.ref(cron_name, False)
         if not process_queue_cron:
@@ -125,7 +127,8 @@ class FixablyInstanceEpt(models.Model):
 
     def open_reset_credentials_wizard(self):
         """
-        Open wizard for reset credentials.
+        this method use for Open wizard for reset credentials.
+        @return: action
         """
         view_id = self.env.ref('fixably_ept.view_reset_credentials_form').id
         action = self.env.ref('fixably_ept.res_config_action_fixably_instance').read()[0]
@@ -139,13 +142,19 @@ class FixablyInstanceEpt(models.Model):
 
     def cron_configuration_action(self):
         """
-        Open wizard of "Configure Schedulers" on button click in the instance form view.
+        this method use for Open wizard of "Configure Schedulers" on button click in the instance form view.
+        @return: action
         """
         action = self.env.ref('fixably_ept.action_wizard_fixably_cron_configuration_ept').read()[0]
         action['context'] = {'fixably_instance_id': self.id}
         return action
 
     def write(self, vals):
+        """
+        Override write method for when reset credentials and instance will update
+        that update time need to unlink store and status with linked with existing API
+        @return: res
+        """
         self.fixably_status_ids.unlink()
         self.fixably_store_ids.unlink()
         res = super(FixablyInstanceEpt, self).write(vals)
@@ -156,3 +165,40 @@ class FixablyInstanceEpt(models.Model):
         }
         self.env['res.config.fixably.instance'].fixably_test_connection(vals)
         return res
+
+    def cron_configuration_action(self):
+        """
+        Open wizard of "Configure Schedulers" on button click in the instance form view.
+        @return: action
+        """
+        action = self.env.ref('fixably_ept.action_wizard_fixably_cron_configuration_ept').read()[0]
+        action['context'] = {'fixably_instance_id': self.id}
+        return action
+
+    def action_redirect_to_ir_cron(self):
+        """
+        Redirect to ir.cron model with cron name like fixably
+        @return: action
+        """
+        action = self.env.ref('base.ir_cron_act').read()[0]
+        action['domain'] = [('name', 'ilike', self.name),
+                            ('name', 'ilike', 'fixably'),
+                            ('active', '=', True)]
+        return action
+    
+    def action_fixablly_active_archive_instance(self):
+        """
+        This method is used to open a wizard to display the information related to how many data will be
+        archived/deleted while instance Active/Archive.
+        @return: action
+        """
+        view = self.env.ref('fixably_ept.view_active_archive_fixably_instance')
+        return {
+            'name': _('Instance Active/Archive Details'),
+            'type': 'ir.actions.act_window',
+            'res_model': 'fixably.queue.process.ept',
+            'views': [(view.id, 'form')],
+            'target': 'new',
+            'context': self._context,
+        }
+

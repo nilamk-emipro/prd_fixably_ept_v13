@@ -4,7 +4,7 @@
 import json
 import logging
 import time
-from odoo import models, fields
+from odoo import models, fields, _
 
 _logger = logging.getLogger("Fixably Order Queue Line")
 
@@ -133,9 +133,16 @@ class FixablyorderQueueLineEpt(models.Model):
         return True
 
     def generate_simple_notification(self, message):
-        """ This method is used to display simple notification while the opration wizard
+        """
+        This method is used to display simple notification while the opration wizard
         """
         bus_bus_obj = self.env["bus.bus"]
-        # bus_bus_obj._sendone(self.env.user.partner_id, 'simple_notification',
-        #                      {"title": "Fixably Connector",
-        #                       "message": message, "sticky": False, "warning": True})
+        # bus_bus_obj.sendone(self.env.user.partner_id, 'simple_notification',
+        #                     {"title": "Fixably Connector",
+        #                      "message": message, "sticky": False, "warning": True})
+
+        bus_bus_obj.sendone(
+            (self._cr.dbname, 'res.partner', self.env.user.partner_id.id),
+            {'type': 'simple_notification', 'title': _('Fixably Connector'),
+             'message': message, 'sticky': False,
+             'warning': True})

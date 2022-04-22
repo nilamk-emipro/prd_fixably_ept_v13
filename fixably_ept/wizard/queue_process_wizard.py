@@ -11,7 +11,7 @@ class FixablyQueueProcessEpt(models.TransientModel):
     def manual_queue_process(self):
         """
         This method is used to call child methods while manually queue(product, order and customer) process.
-        """
+       """
         queue_process = self._context.get('queue_process')
         if queue_process == "process_product_queue_manually":
             self.sudo().process_product_queue_manually()
@@ -19,8 +19,7 @@ class FixablyQueueProcessEpt(models.TransientModel):
             self.sudo().process_order_queue_manually()
 
     def process_product_queue_manually(self):
-        """This method used to process the product queue manually. You can call the method from here :
-            fixably => Processes => Queues Logs => Products => Action => Process Queue Manually
+        """This method used to process the product queue manually.
         """
         model = self._context.get('active_model')
         fixably_product_queue_line_obj = self.env["fixably.product.queue.line.ept"]
@@ -65,9 +64,7 @@ class FixablyQueueProcessEpt(models.TransientModel):
             self.set_to_completed_customer_queue_manually()
 
     def set_to_completed_order_queue_manually(self):
-        """This method used to set order queue as completed. You can call the method from here :
-            fixably => Processes => Queues Logs => Orders => SET TO COMPLETED.
-            @author: Haresh Mori @Emipro Technologies Pvt. Ltd on date 25/12/2019.
+        """This method used to set order queue as completed.
         """
         order_queue_ids = self._context.get('active_ids')
         order_queue_ids = self.env['fixably.order.queue.ept'].browse(order_queue_ids)
@@ -80,9 +77,7 @@ class FixablyQueueProcessEpt(models.TransientModel):
         return True
 
     def set_to_completed_product_queue_manually(self):
-        """This method used to set product queue as completed. You can call the method from here :
-            fixably => Processes => Queues Logs => Products => SET TO COMPLETED.
-            @author: Haresh Mori @Emipro Technologies Pvt. Ltd on date 25/12/2019.
+        """This method used to set product queue as completed.
         """
         product_queue_ids = self._context.get('active_ids')
         product_queue_ids = self.env['fixably.product.queue.ept'].browse(product_queue_ids)
@@ -94,8 +89,3 @@ class FixablyQueueProcessEpt(models.TransientModel):
             #     body=_("Manually set to cancel queue lines %s - ") % (queue_lines.mapped('product_id')))
         return True
 
-    # def instance_active_archive(self):
-    #     instances = self.env['fixably.instance.ept'].browse(self._context.get('active_ids'))
-    #     for instance in instances:
-    #         instance.fixably_action_archive_unarchive()
-    #     return True

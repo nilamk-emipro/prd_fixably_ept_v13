@@ -5,6 +5,7 @@ import logging
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
+from datetime import datetime
 import json
 
 _logger = logging.getLogger("Fixably Product Queue")
@@ -73,6 +74,7 @@ class FixablyProductQueue(models.Model):
     @api.model
     def create(self, vals):
         """This method used to create a sequence for product queue.
+        @return: product_id
         """
         sequence_id = self.env.ref("fixably_ept.seq_product_queue_data").ids
         if sequence_id:
@@ -86,6 +88,7 @@ class FixablyProductQueue(models.Model):
     def prepare_val_product_creation(self, instance, skip_existing_product, products):
         """
         this method use to prepare vals for product creation.
+        @return: product_val
         """
         product_queue_line_obj = self.env['fixably.product.queue.line.ept']
         product_val = []
@@ -101,7 +104,9 @@ class FixablyProductQueue(models.Model):
         return product_val
 
     def fixably_create_product_queue(self, instance, skip_existing_product=False):
-        """This method use for create product queue.
+        """
+        This method use for create product queue.
+        @return: product_queue_ids
         """
         offset = 0
         product_queue_ids = []

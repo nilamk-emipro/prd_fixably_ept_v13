@@ -55,7 +55,10 @@ class CommonLogBookEpt(models.Model):
     def fixably_create_common_log_book(self, process_type, instance, model_id):
         """
         this method use for the create log book record.
-        return : log book id
+        @param : process_type
+                 instance
+                 model_id
+        @return: log_book_id
         """
         log_book_id = self.create({"type": process_type,
                                    "module": "fixably_ept",

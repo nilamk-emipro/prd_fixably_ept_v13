@@ -19,7 +19,7 @@ class CommonLogLineEpt(models.Model):
     def fixably_create_product_log_line(self, message, model_id, queue_line_id, log_book_id, sku=""):
         """
         This method used to create a log line for product mismatch logs.
-        return : log line
+        @return: log_line
         """
         vals = self.fixably_prepare_log_line_vals(message, model_id, queue_line_id, log_book_id)
 
@@ -33,6 +33,7 @@ class CommonLogLineEpt(models.Model):
     def fixably_prepare_log_line_vals(self, message, model_id, res_id, log_book_id):
         """
         this method use to prepare vals for the log line.
+        @return: vals
         """
         vals = {'message': message,
                 'model_id': model_id,
@@ -44,6 +45,7 @@ class CommonLogLineEpt(models.Model):
     def fixably_create_order_log_line(self, message, model_id, queue_line_id, log_book_id, order_ref=""):
         """
         This method used to create a log line for order mismatch logs.
+        @return: log_line
         """
         if order_ref:
             domain = [("message", "=", message), ("model_id", "=", model_id), ("order_ref", "=", order_ref)]

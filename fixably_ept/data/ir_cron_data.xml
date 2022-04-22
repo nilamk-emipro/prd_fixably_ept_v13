@@ -11,6 +11,7 @@
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
         </record>
+
         <record id="process_fixably_order_queue" model="ir.cron">
             <field name="name">Fixably: Process Orders Queue</field>
             <field name="model_id" ref="model_fixably_order_queue_line_ept"/>
@@ -20,6 +21,32 @@
             <field name="interval_number">5</field>
             <field name="interval_type">minutes</field>
             <field name="numbercall">-1</field>
+        </record>
+
+        <record id="ir_cron_fixably_auto_import_order" model="ir.cron">
+            <field name="name">Fixably Auto Import Orders</field>
+            <field eval="False" name="active"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="state">code</field>
+            <field name="doall">False</field>
+            <field name="model_id" ref="model_fixably_order_queue_ept"/>
+            <field name="code">model.import_order_cron_action()</field>
+        </record>
+
+        <record id="ir_cron_fixably_auto_export_invoice" model="ir.cron">
+            <field name="name">Fixably Auto Export Invoice</field>
+            <field eval="False" name="active"/>
+            <field name="user_id" ref="base.user_root"/>
+            <field name="interval_number">1</field>
+            <field name="interval_type">minutes</field>
+            <field name="numbercall">-1</field>
+            <field name="state">code</field>
+            <field name="doall">False</field>
+            <field name="model_id" ref="model_fixably_process_import_export"/>
+            <field name="code">model.auto_export_invoice_to_fixably()</field>
         </record>
     </data>
 </odoo>

@@ -2,7 +2,8 @@
 # See LICENSE file for full copyright and licensing details.
 
 import logging
-
+import requests
+import json
 from odoo import models, fields, api, _
 
 _logger = logging.getLogger("Fixably Operations")
@@ -23,6 +24,7 @@ class FixablyProcessImportExport(models.TransientModel):
 
     def fixably_execute(self):
         """This method used to execute the operation as per given in wizard.
+        @return: action
         """
         product_queue_obj = self.env["fixably.product.queue.ept"]
         order_queue_obj = self.env["fixably.order.queue.ept"]
@@ -61,3 +63,20 @@ class FixablyProcessImportExport(models.TransientModel):
             "type": "ir.actions.client",
             "tag": "reload",
         }
+
+    def auto_export_invoice_to_fixably(self, ctx=False):
+        """
+        this method use to export invoice odoo to fixably using the request post
+        """
+        invoice_obj = self.env['account.move']
+        instance_id = self.env['fixably.instance.ept'].browse(ctx.get('fixably_instance_id'))
+        headers = {'Authorization': instance_id.fixably_api_key,
+                   'Content-Type': 'application/json'}
+
+        invoice_ids = invoice_obj.search_ready_for_export_invoice(instance_id.id)
+
+        for invoice_id in invoice_ids:
+            vals, url = invoice_id.export_invoice_to_fixably()
+            _logger.info("call api for export invoice with %s", url)
+            response = requests.post(url, data=json.dumps(vals), headers=headers)
+            _logger.info("Api Response : %s", response)

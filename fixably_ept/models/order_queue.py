@@ -7,7 +7,7 @@ import pytz
 
 from odoo import models, fields, api, _
 from odoo.exceptions import UserError
-from datetime import datetime, time
+from datetime import datetime, time, timedelta
 from dateutil import parser
 
 utc = pytz.utc
@@ -79,7 +79,8 @@ class FixablyOrderQueue(models.Model):
 
     @api.model
     def create(self, vals):
-        """This method used to create a sequence for order queue.
+        """This method used to create a sequence for order queue
+        @return: order_id
         """
         sequence_id = self.env.ref("fixably_ept.seq_order_queue_data").ids
         if sequence_id:
@@ -93,6 +94,7 @@ class FixablyOrderQueue(models.Model):
     def prepare_val_order_creation(self, instance, orders):
         """
         this method use to prepare vals for order queue creation.
+        @return: order_val
         """
         order_queue_line_obj = self.env['fixably.order.queue.line.ept']
         order_val = []
@@ -109,12 +111,13 @@ class FixablyOrderQueue(models.Model):
     def fixably_create_order_queue(self, instance, from_date, to_date):
         """
         This method use for the create order queue
+        @return: order_queue_ids
         """
         offset = 0
         order_queue_ids = []
         # https://albion.fixably.com/api/v3/orders?q=createdAt:[2010-12-24,2015-04-22]
 
-        order_url = 'orders?q=updatedAt:[' + str(from_date) + ',' + str(to_date) + ']'
+        order_url = 'orders?q=createdAt:[' + str(from_date) + ',' + str(to_date) + ']'
         orders = instance.connect_with_fixably(ref=order_url)
         if orders.status_code != 200:
             raise UserError(_("Some Error in Connection"))
@@ -124,15 +127,19 @@ class FixablyOrderQueue(models.Model):
             _logger.info(total_queue)
             for index in range(int(total_queue) + 1):
                 _logger.info(index)
-                order = instance.connect_with_fixably(ref="orders?offset=" + str(offset))
-                if offset <= 20:  # orders['totalItems']:
+                if total_queue > 1:
+                    order = instance.connect_with_fixably(ref=order_url + "&offset=" + str(offset))
                     order = json.loads(order.content.decode())
+                else:
+                    order = orders
+                if offset <= orders['totalItems']:
                     offset += len(order['items'])
                     order_val = self.prepare_val_order_creation(instance, order)
                     new_created_order = self.create(order_val)
                     order_queue_ids.append(new_created_order.id)
                     self._cr.commit()
                     message = "order Queue Created", new_created_order.name
+                    instance.last_order_import_date = datetime.now()
                     self.env['fixably.order.queue.line.ept'].generate_simple_notification(message)
         return order_queue_ids
 
@@ -154,6 +161,7 @@ class FixablyOrderQueue(models.Model):
     def create_customer(self, customer_details):
         """
         This method use for create customer record.
+        @return: customer_id
         """
         vals = {
             "name": customer_details['firstName'] + ' ' + customer_details['lastName'],
@@ -167,7 +175,7 @@ class FixablyOrderQueue(models.Model):
         """
         This method use for search customer is exists or not in odoo
         as well call create customer method for new customer create
-        return : sale_order , pos_order , customer_id
+        @return : sale_order , pos_order , customer_id
                 sale_order and pos_order take True or False value, from that consider to
                 next go for the making sale order or pos order
         """
@@ -199,6 +207,7 @@ class FixablyOrderQueue(models.Model):
     def search_product(self, details):
         """
         This method use for the product is available in fixably or odoo
+        @return: odoo_product
         """
         odoo_product_obj = self.env["product.product"]
         fixably_product_obj = self.env["fixably.product.ept"]
@@ -212,6 +221,7 @@ class FixablyOrderQueue(models.Model):
     def prepare_vals_for_order_line(self, instance, sale_order, product, order_line_details):
         """
         This method is used to prepare a vals to create a sale order and pos order line.
+        @return: line_vals
         """
         uom_id = product and product.uom_id and product.uom_id.id or False
         if sale_order:
@@ -241,6 +251,7 @@ class FixablyOrderQueue(models.Model):
     def fixably_sync_orders(self, order_queue_line, instance, log_book_id):
         """
         This method is used to sync order from queue line to odoo.
+        @return: Order
         """
         order = False
         session_id = False
@@ -249,71 +260,73 @@ class FixablyOrderQueue(models.Model):
         model_id = common_log_line_obj.get_model_id("sale.order")
         details = json.loads(order_queue_line['synced_order_data'])
 
-        order_exists = self.check_order_exists_or_not(instance, details)
-        if not order_exists:
-            sale_order, POS_order, customer_id = self.search_customer(model_id, instance, order_queue_line, log_book_id,
-                                                                      details)
-            if not customer_id:
-                log_count += 1
+        # order_exists = self.check_order_exists_or_not(instance, details)
+        # if not order_exists:
+        sale_order, POS_order, customer_id = self.search_customer(model_id, instance, order_queue_line, log_book_id,
+                                                                  details)
+        if not customer_id:
+            log_count += 1
 
-            if sale_order or POS_order:
-                if not details['lines']['items']:
-                    self.create_log_line_for_order_queue_line(model_id,
-                                                              "Order lines are not Available in the response of order %s" % (
-                                                                  details['id']),
-                                                              order_queue_line, log_book_id, details)
-                    log_count += 1
-                else:
-                    lines = []
-                    for order_line in details['lines']['items']:
-                        if not order_line['product']:
-                            self.create_log_line_for_order_queue_line(model_id,
-                                                                      "Product is not Available in order line of order %s" % (
-                                                                          details['id']),
-                                                                      order_queue_line, log_book_id, details)
-                            log_count += 1
-                            break
-                        else:
-                            odoo_product = self.search_product(order_line['product'])
-                            if odoo_product:
-                                prepared_vals = self.prepare_vals_for_order_line(instance, sale_order,
-                                                                                 odoo_product,
-                                                                                 order_line)
-                                lines.append(prepared_vals)
-                            else:
-                                self.create_log_line_for_order_queue_line(model_id,
-                                                                          "Product is not Available in odoo with name %s" % (
-                                                                              order_line['product']['name']),
-                                                                          order_queue_line, log_book_id, details)
-                                log_count += 1
-                                break
-                if POS_order:
-                    if details['store']:
-                        session_id = self.search_open_session_for_pos_order(details)
-                        if not session_id:
-                            self.create_log_line_for_order_queue_line(model_id,
-                                                                      "Any open session not Available with store %s" % (
-                                                                          details['store']['name']),
-                                                                      order_queue_line, log_book_id, details)
-                            log_count += 1
-                    else:
+        if sale_order or POS_order:
+            if not details['lines']['items']:
+                self.create_log_line_for_order_queue_line(model_id,
+                                                          "Order lines are not Available in the response of order %s" % (
+                                                              details['id']),
+                                                          order_queue_line, log_book_id, details)
+                log_count += 1
+            else:
+                lines = []
+                for order_line in details['lines']['items']:
+                    if not order_line['product']:
                         self.create_log_line_for_order_queue_line(model_id,
-                                                                  "Store not Available on response of order %s" % (
+                                                                  "Product is not Available in order line of order %s" % (
                                                                       details['id']),
                                                                   order_queue_line, log_book_id, details)
                         log_count += 1
+                        break
+                    else:
+                        odoo_product = self.search_product(order_line['product'])
+                        if odoo_product:
+                            prepared_vals = self.prepare_vals_for_order_line(instance, sale_order,
+                                                                             odoo_product,
+                                                                             order_line)
+                            lines.append(prepared_vals)
+                        else:
+                            self.create_log_line_for_order_queue_line(model_id,
+                                                                      "Product is not Available in odoo with name %s" % (
+                                                                          order_line['product']['name']),
+                                                                      order_queue_line, log_book_id, details)
+                            log_count += 1
+                            break
+            if POS_order:
+                if details['store']:
+                    session_id = self.search_open_session_for_pos_order(details)
+                    if not session_id:
+                        self.create_log_line_for_order_queue_line(model_id,
+                                                                  "Any open session not Available with store %s" % (
+                                                                      details['store']['name']),
+                                                                  order_queue_line, log_book_id, details)
+                        log_count += 1
+                else:
+                    self.create_log_line_for_order_queue_line(model_id,
+                                                              "Store not Available on response of order %s" % (
+                                                                  details['id']),
+                                                              order_queue_line, log_book_id, details)
+                    log_count += 1
 
-            if log_count == 0:
-                order_queue_line.write({"state": "done", "last_process_date": datetime.now()})
-                order = self.create_order(instance, sale_order, POS_order, customer_id, details, lines, session_id)
-        else:
+        if log_count == 0:
             order_queue_line.write({"state": "done", "last_process_date": datetime.now()})
+            order = self.create_order(instance, sale_order, POS_order, customer_id, details, lines, session_id)
+
+        # else:
+        #     order_queue_line.write({"state": "done", "last_process_date": datetime.now()})
         return order
 
     def check_order_exists_or_not(self, instance, details):
         """
         This method use for check current order is exists or not on sale order
         or pos order
+        @return: order
         """
         order = self.env['sale.order'].search(
             [('fixably_instance_id', '=', instance.id), ('fixably_order_id', '=', details['id'])])
@@ -325,6 +338,7 @@ class FixablyOrderQueue(models.Model):
     def create_order(self, instance, sale_order, POS_order, customer_id, details, lines, session_id):
         """
         This method is use for the create a sale order and pos order.
+        @return: order_id
         """
         sale_order_obj = self.env['sale.order']
         pos_order_obj = self.env['pos.order']
@@ -335,10 +349,21 @@ class FixablyOrderQueue(models.Model):
             new_record = sale_order_obj.new(order_vals)
             # new_record._onchange_partner_id()
             order_id = sale_order_obj.create(order_vals)
+            index = 0
             for line in lines:
                 line.update({'order_id': order_id.id})
                 line_id = sale_order_line_obj.create(line)
                 line_id.product_id_change()
+                if details['lines']['items'][index]['serialNumber'] and details['lines']['items'][index][
+                    'originalSerialNumber']:
+                    val = [(0, 0, {
+                        'display_type': 'line_note',
+                        'name': 'Serial Number:' + details['lines']['items'][index]['serialNumber'] +
+                                '\n' + 'Orignal Serial Number:' + details['lines']['items'][index][
+                                    'originalSerialNumber'],
+                    })]
+                    order_id.update({'order_line': val})
+                index += 1
         if POS_order:
             order_vals = self.prepare_pos_order_vals(instance, customer_id, details, session_id)
             new_record = pos_order_obj.new(order_vals)
@@ -358,6 +383,7 @@ class FixablyOrderQueue(models.Model):
     def prepare_payment_val(self, lines):
         """
         This method is use to prepare vals for payment line of pos order
+        @return: payment_vals
         """
         payment_vals = {
             'amount': sum(float(line['qty']) * float(line['price_unit']) for line in lines)
@@ -367,6 +393,7 @@ class FixablyOrderQueue(models.Model):
     def make_payment(self, vals, order_id):
         """
         This method is use to prepare vals for payment of pos order
+        @return: payment
         """
         payment_method = self.env['pos.make.payment'].with_context(active_id=order_id.id)._default_payment_method()
         payment = self.env['pos.payment'].create({
@@ -381,6 +408,7 @@ class FixablyOrderQueue(models.Model):
     def prepare_sale_order_vals(self, instance, customer_id, details):
         """
         This method used to Prepare a sale order vals.
+        @return: ordervals
         """
         # date_order = self.convert_order_date(order_response)
         team_id = self.search_team_from_instance(details)
@@ -409,6 +437,7 @@ class FixablyOrderQueue(models.Model):
     def prepare_pos_order_vals(self, instance, customer_id, details, session_id):
         """
         This method used to Prepare a pos order vals.
+        @return: ordervals
         """
         # date_order = self.convert_order_date(order_response)
         ordervals = {
@@ -432,7 +461,9 @@ class FixablyOrderQueue(models.Model):
         return ordervals
 
     def convert_order_date(self, order_response):
-        """ This method is used to convert the order date in UTC and formate("%Y-%m-%d %H:%M:%S").
+        """
+        This method is used to convert the order date in UTC and formate("%Y-%m-%d %H:%M:%S").
+        @return: date_order
         """
         if order_response["createdAt"]:
             order_date = order_response["createdAt"]
@@ -446,6 +477,7 @@ class FixablyOrderQueue(models.Model):
     def search_team_from_instance(self, details):
         """
         This method use for the team id from fixably store model
+        @return: team_id
         """
         team_id = self.env['fixably.store.ept'].search(
             [('fixably_store_id', '=', details['store']['id'])]).mapped("fixably_team_id").ids
@@ -455,9 +487,24 @@ class FixablyOrderQueue(models.Model):
         """
         This method use for the search open pos session base on fixably pos store
         base on current order store
+        @return: session_id
         """
         store_id = self.env['fixably.store.ept'].search(
             [('fixably_store_id', '=', details['store']['id'])]).mapped("fixably_pos_store_id").ids
         session_id = self.env['pos.session'].search([('config_id', '=', store_id),
                                                      ('state', '=', 'opened')], limit=1)
         return session_id
+
+    def import_order_cron_action(self, ctx=False):
+        """
+        This method is used to import orders from the auto-import cron job.
+        """
+        if isinstance(ctx, dict):
+            instance_id = ctx.get('fixably_instance_id')
+            instance = self.env['fixably.instance.ept'].browse(instance_id)
+            from_date = instance.last_order_import_date
+            to_date = datetime.now()
+            if not from_date:
+                from_date = to_date - timedelta(3)
+            self.fixably_create_order_queue(instance, from_date, to_date)
+        return True

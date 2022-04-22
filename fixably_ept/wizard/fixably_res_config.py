@@ -20,7 +20,8 @@ class FixablyInstanceConfig(models.TransientModel):
 
     def create_pricelist(self):
         """
-        This method creates pricelist base on current currency .
+        This method creates pricelist base on current currency
+        @return: pricelist id
         """
         pricelist_obj = self.env["product.pricelist"]
         currency_id = self.env.user.currency_id
@@ -122,7 +123,7 @@ class FixablyInstanceConfig(models.TransientModel):
         if vals:
             fixably_instance = instance_obj.with_context(active_test=False).search(
                 ["|", ("fixably_api_key", "=", vals['fixably_api_key']),
-                 ("fixably_url", "=", ['fixably_url'])], limit=1)
+                 ("fixably_url", "=", vals['fixably_url'])], limit=1)
         else:
             instance_id = instance_obj.with_context(active_test=False).search(
                 ["|", ("fixably_api_key", "=", self.fixably_api_key),
@@ -239,7 +240,8 @@ class ResConfigSettings(models.TransientModel):
             self.fixably_order_status_ids = instance.fixably_order_status_ids.ids
 
     def execute(self):
-        """This method used to set value in an instance of configuration.
+        """
+        This method used to set value in an instance of configuration.
         """
         instance = self.fixably_instance_id
         values = {}

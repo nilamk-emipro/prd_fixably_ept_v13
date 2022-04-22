@@ -23,6 +23,7 @@ class FixablyProductEpt(models.Model):
     def fixably_sync_products(self, product_queue_line, instance, log_book_id):
         """
         This method is used to sync products from queue line to fixably.
+        @return: product
         """
         product = False
         common_log_line_obj = self.env["common.log.lines.ept"]
@@ -55,6 +56,7 @@ class FixablyProductEpt(models.Model):
     def fixably_search_odoo_product(self, product_queue_line, product_line_details):
         """
         This method use for Searches fixably/Odoo product
+        @return: fixably_product , odoo_product
         """
         odoo_product_obj = self.env["product.product"]
         fixably_product_obj = self.env["fixably.product.ept"]
@@ -83,6 +85,7 @@ class FixablyProductEpt(models.Model):
     def create_odoo_product(self, product_line_details):
         """
         This method use for prepare vals and create product in odoo
+        @return: created_product
         """
         odoo_product_obj = self.env['product.product']
         vals = {
@@ -95,6 +98,7 @@ class FixablyProductEpt(models.Model):
     def is_odoo_product_importable(self, instance, product_line_details):
         """
         This method will check if the product can be imported or not.
+        @return: odoo_product_id
         """
         if instance.fixably_auto_create_product_if_not_found:
             odoo_product_id = self.create_odoo_product(product_line_details)
@@ -117,6 +121,7 @@ class FixablyProductEpt(models.Model):
     def create_or_update_product(self, product_queue_line, fixably_product, odoo_product, product_line_details):
         """
         This method used to create new or update existing fixably product.
+        @return: fixably_product
         """
         vals = {
             "fixably_product_id": product_line_details['id'],

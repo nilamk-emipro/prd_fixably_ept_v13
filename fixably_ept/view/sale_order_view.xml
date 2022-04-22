@@ -49,27 +49,6 @@
         </field>
     </record>
 
-    <record id="inherit_view_move_form" model="ir.ui.view">
-        <field name="name">account.move.form.inherit</field>
-        <field name="model">account.move</field>
-        <field name="type">form</field>
-        <field name="inherit_id" ref="account.view_move_form"/>
-        <field name="arch" type="xml">
-            <data>
-                <notebook position="inside">
-                    <page string="Fixably Info" name="fixably_ept"
-                          attrs="{'invisible':[('fixably_instance_id','=',False)]}">
-                        <group>
-                            <group>
-                                <field name="fixably_instance_id" readonly="True"/>
-                            </group>
-                        </group>
-                    </page>
-                </notebook>
-            </data>
-        </field>
-    </record>
-
     <record id="inherit_view_stock_picking_form" model="ir.ui.view">
         <field name="name">stock.picking.form.inherit</field>
         <field name="model">stock.picking</field>
@@ -147,13 +126,6 @@
         </field>
     </record>
 
-    <record id="action_fixably_invoices" model="ir.actions.act_window">
-        <field name="name">Invoices</field>
-        <field name="res_model">account.move</field>
-        <field name="domain">[('fixably_instance_id','!=',False)]</field>
-        <field name="search_view_id" ref="account.view_account_invoice_filter"/>
-    </record>
-
     <menuitem id="fixably_menu_item_sales" name="Sales" parent="fixably_ept.fixably_instance_menu_item"
               sequence="1"/>
 
@@ -164,10 +136,6 @@
     <menuitem id="menu_item_fixably_delivery_order_ept" name="Delivery Orders"
               parent="fixably_ept.fixably_menu_item_sales"
               action="action_fixably_delivery_order" sequence="2"/>
-
-    <menuitem id="fixably_menu_item_invoice" name="Invoices"
-              parent="fixably_ept.fixably_menu_item_sales"
-              action="action_fixably_invoices" sequence="3"/>
 
 </odoo>
 	

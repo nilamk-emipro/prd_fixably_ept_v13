@@ -8,7 +8,8 @@
                 <sheet>
                     <group name='fixably_instance'>
                         <group>
-                            <field name='fixably_instance_id' required="1"/>
+                            <field name='fixably_instance_id' options="{'no_create':True,'no_create_edit': True,'no_open': True}"
+                                   required="1" domain="[('active','=',True)]"/>
                         </group>
                         <group>
                             <field name='fixably_operation' string="Operations" required="1"/>

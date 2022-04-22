@@ -12,3 +12,4 @@ access_fixably_queue_process_ept_manager,fixably.queue.process.ept.manager,model
 access_fixably_order_queue_ept_manager,fixably.order.queue.ept.manager,model_fixably_order_queue_ept,,1,1,1,1
 access_fixably_order_queue_line_ept_manager,fixably.order.queue.line.ept.manager,model_fixably_order_queue_line_ept,,1,1,1,1
 access_fixably_order_status_ept_manager,fixably.order.status.ept.manager,model_fixably_order_status_ept,,1,1,1,1
+access_fixably_cron_configuration_ept,access_fixably_cron_configuration_ept,model_fixably_cron_configuration_ept,,1,1,1,1

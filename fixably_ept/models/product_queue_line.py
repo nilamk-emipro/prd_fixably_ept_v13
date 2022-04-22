@@ -4,7 +4,7 @@
 import json
 import logging
 import time
-from odoo import models, fields
+from odoo import models, fields,_
 
 _logger = logging.getLogger("Fixably Product Queue Line")
 
@@ -30,6 +30,7 @@ class FixablyProductQueueLineEpt(models.Model):
     def fixably_prepare_products_line(self, product_url, fixably_instance):
         """
         This method use for prepare product queue line
+        @return: product_line
         """
         product_url = product_url['href']  # + '?expand=lines(items(product)),customer,store'
         _logger.info(product_url)
@@ -135,6 +136,8 @@ class FixablyProductQueueLineEpt(models.Model):
             opration running in the backend.
         """
         bus_bus_obj = self.env["bus.bus"]
-        # bus_bus_obj._sendone(self.env.user.partner_id, 'simple_notification',
-        #                      {"title": "Fixably Connector",
-        #                       "message": message, "sticky": False, "warning": True})
+        bus_bus_obj.sendone(
+            (self._cr.dbname, 'res.partner', self.env.user.partner_id.id),
+            {'type': 'simple_notification', 'title': _('Fixably Connector'),
+             'message': message, 'sticky': False,
+             'warning': True})

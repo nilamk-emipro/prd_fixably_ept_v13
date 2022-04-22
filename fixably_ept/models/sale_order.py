@@ -13,6 +13,7 @@ class SaleOrder(models.Model):
 
     def _prepare_invoice(self):
         """This method used set a fixably instance in invoice.
+        @return: inv_val
         """
         inv_val = super(SaleOrder, self)._prepare_invoice()
         if self.fixably_instance_id:
