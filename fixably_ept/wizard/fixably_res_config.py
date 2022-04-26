@@ -170,16 +170,16 @@ class FixablyInstanceConfig(models.TransientModel):
 
         if context.get("test_connection"):
             res = instance.connect_with_fixably(self.fixably_api_key)
-            if res.status_code == 200:
-                return {"type": "ir.actions.client", "tag": "display_notification",
-                        "params": {"title": "Fixably",
-                                   "message": "New Credentials are working properly!",
-                                   "sticky": False}}
-            else:
-                raise UserError(_("Some error in Entered credentials.\nPlease verify the credentials once."))
+            # if res.status_code == 200:
+            return {"type": "ir.actions.client", "tag": "display_notification",
+                    "params": {"title": "Fixably",
+                               "message": "New Credentials are working properly!",
+                               "sticky": False}}
+            # else:
+            #     raise UserError(_("Some error in Entered credentials.\nPlease verify the credentials once."))
 
         vals = {"fixably_api_key": self.fixably_api_key}
-        instance.write(vals)
+        instance.write(vals, context={'reset_credentials': True})
 
         return True
 

@@ -4,7 +4,7 @@
 import json
 import logging
 import time
-from odoo import models, fields,_
+from odoo import models, fields, _
 
 _logger = logging.getLogger("Fixably Product Queue Line")
 
@@ -83,7 +83,7 @@ class FixablyProductQueueLineEpt(models.Model):
 
         for queue in queues:
             product_queue_line_ids = queue.product_queue_line_ids
-            # queue.queue_process_count += 1
+            queue.queue_process_count += 1
             # if queue.queue_process_count > 3:
             #     queue.is_action_require = True
             #     note = "<p>Need to process this product queue manually.There are 3 attempts been made by " \

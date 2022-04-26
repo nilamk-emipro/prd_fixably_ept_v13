@@ -5,7 +5,7 @@
         <field name="model">fixably.order.queue.ept</field>
         <field name="arch" type="xml">
             <tree create="0" decoration-success="state == 'completed'" decoration-info="state == 'draft'"
-                       decoration-warning="state == 'partially_completed'" decoration-danger="state == 'failed'">
+                  decoration-warning="state == 'partially_completed'" decoration-danger="state == 'failed'">
                 <field name="name"/>
                 <field name="fixably_instance_id"/>
                 <field name="is_process_queue" invisible="1"/>
@@ -199,6 +199,9 @@
         <field name="view_id" ref="fixably_order_queue_tree_view_ept"/>
         <field name="search_view_id" ref="fixably_ept.fixably_order_queue_filter"/>
         <!--        <field name="domain">[('state', 'in', ['failed','partially_completed'])]</field>-->
+        <field name="context">{'search_default_draft':
+            1,'search_default_partially_completed': 2,'search_default_failed':3}
+        </field>
         <field name="help" type="html">
             <div class="oe_empty_fixably_instance">
                 <br/>

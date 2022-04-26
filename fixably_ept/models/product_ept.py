@@ -63,7 +63,7 @@ class FixablyProductEpt(models.Model):
         fixably_product = False
         if not product_queue_line.product_queue_id.skip_existing_product:
             fixably_product = fixably_product_obj.search([('fixably_product_id', '=', product_queue_line.product_id)],
-                                                     limit=1)
+                                                         limit=1)
         odoo_product = odoo_product_obj.search([("default_code", "=", product_line_details['code'])], limit=1)
 
         return fixably_product, odoo_product
@@ -90,7 +90,8 @@ class FixablyProductEpt(models.Model):
         odoo_product_obj = self.env['product.product']
         vals = {
             "name": product_line_details['name'],
-            "default_code": product_line_details['code']
+            "default_code": product_line_details['code'],
+            "type": 'service'
         }
         odoo_created_product = odoo_product_obj.create(vals)
         return odoo_created_product

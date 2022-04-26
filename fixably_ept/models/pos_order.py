@@ -13,4 +13,4 @@ class PosOrder(models.Model):
 class PosOrderLine(models.Model):
     _inherit = "pos.order.line"
 
-    shopify_line_id = fields.Char("Shopify Line", copy=False)
+    fixably_line_id = fields.Char("Fixably Line", copy=False)

@@ -84,7 +84,7 @@ class FixablyorderQueueLineEpt(models.Model):
 
         for queue in queues:
             order_queue_line_ids = queue.order_queue_line_ids
-            # queue.queue_process_count += 1
+            queue.queue_process_count += 1
             # if queue.queue_process_count > 3:
             #     queue.is_action_require = True
             #     note = "<p>Need to process this order queue manually.There are 3 attempts been made by " \

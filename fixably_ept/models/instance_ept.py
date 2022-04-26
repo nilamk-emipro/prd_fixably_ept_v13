@@ -149,21 +149,24 @@ class FixablyInstanceEpt(models.Model):
         action['context'] = {'fixably_instance_id': self.id}
         return action
 
-    def write(self, vals):
+    def write(self, vals, context=False):
         """
         Override write method for when reset credentials and instance will update
         that update time need to unlink store and status with linked with existing API
         @return: res
         """
-        self.fixably_status_ids.unlink()
-        self.fixably_store_ids.unlink()
-        res = super(FixablyInstanceEpt, self).write(vals)
-        self._cr.commit()
-        vals = {
-            "fixably_api_key": self.fixably_api_key,
-            "fixably_url": self.fixably_url
-        }
-        self.env['res.config.fixably.instance'].fixably_test_connection(vals)
+        if context:
+            self.fixably_status_ids.unlink()
+            self.fixably_store_ids.unlink()
+            res = super(FixablyInstanceEpt, self).write(vals)
+            self._cr.commit()
+            vals = {
+                "fixably_api_key": self.fixably_api_key,
+                "fixably_url": self.fixably_url
+            }
+            self.env['res.config.fixably.instance'].fixably_test_connection(vals)
+        else:
+            res = super(FixablyInstanceEpt, self).write(vals)
         return res
 
     def cron_configuration_action(self):
@@ -185,7 +188,7 @@ class FixablyInstanceEpt(models.Model):
                             ('name', 'ilike', 'fixably'),
                             ('active', '=', True)]
         return action
-    
+
     def action_fixablly_active_archive_instance(self):
         """
         This method is used to open a wizard to display the information related to how many data will be
@@ -201,4 +204,3 @@ class FixablyInstanceEpt(models.Model):
             'target': 'new',
             'context': self._context,
         }
-
